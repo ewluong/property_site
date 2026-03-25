@@ -1,93 +1,106 @@
 document.addEventListener("DOMContentLoaded", function () {
 
   // ========================================
-  // Scroll Reveal Animations
-  // Mark elements as ready for animation, then observe.
-  // Without JS, elements remain fully visible (no .reveal-ready class).
+  // Scroll Reveal (IntersectionObserver)
   // ========================================
-  var revealElements = document.querySelectorAll('.reveal');
+  var revealEls = document.querySelectorAll('.reveal');
+  var i;
 
-  // Mark all elements as animation-ready (sets opacity: 0 via CSS)
-  revealElements.forEach(function (el) {
-    el.classList.add('reveal-ready');
-  });
+  for (i = 0; i < revealEls.length; i++) {
+    revealEls[i].classList.add('reveal-ready');
+  }
 
-  var revealObserver = new IntersectionObserver(
-    function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.08, rootMargin: '0px 0px -30px 0px' }
-  );
+  var revealObs = new IntersectionObserver(function (entries) {
+    for (var e = 0; e < entries.length; e++) {
+      if (entries[e].isIntersecting) {
+        entries[e].target.classList.add('visible');
+        revealObs.unobserve(entries[e].target);
+      }
+    }
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
 
-  revealElements.forEach(function (el) {
-    revealObserver.observe(el);
-  });
+  for (i = 0; i < revealEls.length; i++) {
+    revealObs.observe(revealEls[i]);
+  }
 
   // ========================================
-  // Sticky Navbar (transparent -> solid on scroll)
+  // Lazy-load iframes (Maps + Google Form)
+  // Only load when user scrolls near them
+  // ========================================
+  var lazyIframes = document.querySelectorAll('iframe[data-src]');
+
+  var iframeObs = new IntersectionObserver(function (entries) {
+    for (var e = 0; e < entries.length; e++) {
+      if (entries[e].isIntersecting) {
+        var iframe = entries[e].target;
+        iframe.src = iframe.getAttribute('data-src');
+        iframe.removeAttribute('data-src');
+        iframeObs.unobserve(iframe);
+      }
+    }
+  }, { rootMargin: '200px' }); // Start loading 200px before visible
+
+  for (i = 0; i < lazyIframes.length; i++) {
+    iframeObs.observe(lazyIframes[i]);
+  }
+
+  // ========================================
+  // Sticky Navbar
   // ========================================
   var navbar = document.getElementById('navbar');
+  var lastScrollY = 0;
+  var ticking = false;
 
-  function updateNavbar() {
-    if (window.scrollY > 60) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
+  function onScroll() {
+    lastScrollY = window.scrollY;
+    if (!ticking) {
+      requestAnimationFrame(function () {
+        navbar.classList.toggle('scrolled', lastScrollY > 60);
+        ticking = false;
+      });
+      ticking = true;
     }
   }
 
-  window.addEventListener('scroll', updateNavbar, { passive: true });
-  updateNavbar();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 
   // ========================================
-  // Mobile Menu Toggle
+  // Mobile Menu
   // ========================================
-  var mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  var menuBtn = document.querySelector('.mobile-menu-btn');
   var mobileMenu = document.querySelector('.mobile-menu');
 
-  if (mobileMenuBtn && mobileMenu) {
-    mobileMenuBtn.addEventListener('click', function () {
+  if (menuBtn && mobileMenu) {
+    menuBtn.addEventListener('click', function () {
       var isOpen = mobileMenu.classList.toggle('open');
-      var icon = mobileMenuBtn.querySelector('i');
-      if (isOpen) {
-        icon.className = 'fas fa-times';
-        // Ensure navbar has background when menu is open
-        navbar.classList.add('scrolled');
-      } else {
-        icon.className = 'fas fa-bars';
-        updateNavbar();
-      }
+      menuBtn.querySelector('i').className = isOpen ? 'fas fa-times' : 'fas fa-bars';
+      if (isOpen) navbar.classList.add('scrolled');
+      else onScroll();
     });
 
-    // Close menu when a link is clicked
-    var menuLinks = mobileMenu.querySelectorAll('a');
-    for (var i = 0; i < menuLinks.length; i++) {
-      menuLinks[i].addEventListener('click', function () {
+    var links = mobileMenu.querySelectorAll('a');
+    for (i = 0; i < links.length; i++) {
+      links[i].addEventListener('click', function () {
         mobileMenu.classList.remove('open');
-        mobileMenuBtn.querySelector('i').className = 'fas fa-bars';
-        updateNavbar();
+        menuBtn.querySelector('i').className = 'fas fa-bars';
+        onScroll();
       });
     }
   }
 
   // ========================================
-  // Hero Background Slow Zoom on Load
+  // Hero Background Zoom
   // ========================================
   var heroBg = document.querySelector('.hero-bg');
   if (heroBg) {
-    // Small delay so the transition is visible
-    setTimeout(function () {
+    requestAnimationFrame(function () {
       heroBg.classList.add('loaded');
-    }, 100);
+    });
   }
 
   // ========================================
-  // Image Modal with Navigation
+  // Image Modal with Navigation + Touch Swipe
   // ========================================
   var modal = document.getElementById('image-modal');
   var modalImg = document.getElementById('modal-img');
@@ -95,104 +108,82 @@ document.addEventListener("DOMContentLoaded", function () {
   var closeBtn = document.querySelector('.modal .close');
   var prevBtn = document.querySelector('.modal-prev');
   var nextBtn = document.querySelector('.modal-next');
-  var galleryImages = document.querySelectorAll('.gallery-item img');
+  var galleryItems = document.querySelectorAll('.gallery-item');
 
-  var currentIndex = 0;
-  var imageSources = [];
+  var currentIdx = 0;
+  var srcs = [];
 
-  // Collect image sources
-  for (var j = 0; j < galleryImages.length; j++) {
-    imageSources.push(galleryImages[j].src);
+  // Collect sources from img children
+  for (i = 0; i < galleryItems.length; i++) {
+    var img = galleryItems[i].querySelector('img');
+    if (img) srcs.push(img.src);
   }
 
-  function showImage(index) {
-    if (index < 0) index = imageSources.length - 1;
-    if (index >= imageSources.length) index = 0;
-    currentIndex = index;
-    modalImg.src = imageSources[currentIndex];
-    if (modalCounter) {
-      modalCounter.textContent = (currentIndex + 1) + ' / ' + imageSources.length;
-    }
+  function show(idx) {
+    if (idx < 0) idx = srcs.length - 1;
+    if (idx >= srcs.length) idx = 0;
+    currentIdx = idx;
+    modalImg.src = srcs[currentIdx];
+    if (modalCounter) modalCounter.textContent = (currentIdx + 1) + ' / ' + srcs.length;
   }
 
-  function openModal(index) {
+  function open(idx) {
     modal.style.display = 'flex';
-    showImage(index);
+    show(idx);
     document.body.style.overflow = 'hidden';
   }
 
-  function closeModal() {
+  function close() {
     modal.style.display = 'none';
     document.body.style.overflow = '';
   }
 
-  // Click handlers on gallery images
-  for (var k = 0; k < galleryImages.length; k++) {
+  // Gallery click handlers
+  for (i = 0; i < galleryItems.length; i++) {
     (function (idx) {
-      galleryImages[idx].addEventListener('click', function () {
-        openModal(idx);
-      });
-    })(k);
+      galleryItems[idx].addEventListener('click', function () { open(idx); });
+    })(i);
   }
 
-  // Also allow clicking the gallery-item div itself (not just the img)
-  var galleryItems = document.querySelectorAll('.gallery-item');
-  for (var g = 0; g < galleryItems.length; g++) {
-    (function (idx) {
-      galleryItems[idx].addEventListener('click', function () {
-        openModal(idx);
-      });
-    })(g);
-  }
+  if (closeBtn) closeBtn.addEventListener('click', function (e) { e.stopPropagation(); close(); });
 
-  if (closeBtn) {
-    closeBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      closeModal();
-    });
-  }
+  if (prevBtn) prevBtn.addEventListener('click', function (e) { e.stopPropagation(); show(currentIdx - 1); });
+  if (nextBtn) nextBtn.addEventListener('click', function (e) { e.stopPropagation(); show(currentIdx + 1); });
 
-  if (prevBtn) {
-    prevBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      showImage(currentIndex - 1);
-    });
-  }
+  if (modal) modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
 
-  if (nextBtn) {
-    nextBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      showImage(currentIndex + 1);
-    });
-  }
-
-  // Close on backdrop click
-  if (modal) {
-    modal.addEventListener('click', function (e) {
-      if (e.target === modal) {
-        closeModal();
-      }
-    });
-  }
-
-  // Keyboard navigation
+  // Keyboard nav
   document.addEventListener('keydown', function (e) {
     if (modal.style.display !== 'flex') return;
-    if (e.key === 'Escape') {
-      closeModal();
-    } else if (e.key === 'ArrowLeft') {
-      showImage(currentIndex - 1);
-    } else if (e.key === 'ArrowRight') {
-      showImage(currentIndex + 1);
-    }
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') show(currentIdx - 1);
+    else if (e.key === 'ArrowRight') show(currentIdx + 1);
   });
 
+  // Touch swipe support for modal
+  var touchStartX = 0;
+  var touchEndX = 0;
+  var SWIPE_THRESHOLD = 50;
+
+  modalImg.addEventListener('touchstart', function (e) {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  modalImg.addEventListener('touchend', function (e) {
+    touchEndX = e.changedTouches[0].screenX;
+    var diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > SWIPE_THRESHOLD) {
+      if (diff > 0) show(currentIdx + 1); // Swipe left = next
+      else show(currentIdx - 1);          // Swipe right = prev
+    }
+  }, { passive: true });
+
   // ========================================
-  // Smooth Scroll for all anchor links
+  // Smooth Scroll
   // ========================================
   var anchors = document.querySelectorAll('a[href^="#"]');
-  for (var a = 0; a < anchors.length; a++) {
-    anchors[a].addEventListener('click', function (e) {
+  for (i = 0; i < anchors.length; i++) {
+    anchors[i].addEventListener('click', function (e) {
       var href = this.getAttribute('href');
       if (!href || href === '#') return;
       var target = document.querySelector(href);

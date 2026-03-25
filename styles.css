@@ -25,15 +25,25 @@ body {
 }
 
 /* ========================================
+   Reduced Motion — respect user preference
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========================================
    Scroll Reveal Animations
-   These elements are visible by default.
-   JS adds .reveal-ready, then .visible triggers the animation.
-   Without JS, everything stays fully visible.
+   Visible by default. JS adds .reveal-ready to enable animation.
    ======================================== */
 .reveal.reveal-ready {
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
 
 .reveal.reveal-ready.visible {
@@ -41,15 +51,14 @@ body {
   transform: translateY(0);
 }
 
-/* Stagger delays for sibling grid items */
-.reveal.reveal-ready:nth-child(2) { transition-delay: 0.08s; }
-.reveal.reveal-ready:nth-child(3) { transition-delay: 0.16s; }
-.reveal.reveal-ready:nth-child(4) { transition-delay: 0.22s; }
-.reveal.reveal-ready:nth-child(5) { transition-delay: 0.28s; }
-.reveal.reveal-ready:nth-child(6) { transition-delay: 0.34s; }
+.reveal.reveal-ready:nth-child(2) { transition-delay: 0.06s; }
+.reveal.reveal-ready:nth-child(3) { transition-delay: 0.12s; }
+.reveal.reveal-ready:nth-child(4) { transition-delay: 0.18s; }
+.reveal.reveal-ready:nth-child(5) { transition-delay: 0.24s; }
+.reveal.reveal-ready:nth-child(6) { transition-delay: 0.30s; }
 
 /* ========================================
-   Hero Entrance Animations (CSS-only, no JS needed)
+   Hero Entrance (CSS-only, no JS needed)
    ======================================== */
 .hero-anim {
   opacity: 0;
@@ -63,10 +72,7 @@ body {
 .hero-anim:nth-child(4) { animation-delay: 0.55s; }
 
 @keyframes heroFadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ========================================
@@ -84,15 +90,15 @@ body {
 
 #navbar.scrolled {
   background: rgba(10, 10, 15, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 1px 20px rgba(0, 0, 0, 0.4);
 }
 
 .nav-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 24px;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -130,12 +136,6 @@ body {
   padding: 10px 24px !important;
   border-radius: 50px;
   font-weight: 600 !important;
-  transition: background 0.2s ease, transform 0.2s ease !important;
-}
-
-.nav-cta:hover {
-  background: #e73370 !important;
-  transform: scale(1.05);
 }
 
 .mobile-menu-btn {
@@ -146,13 +146,13 @@ body {
   font-size: 1.4rem;
   cursor: pointer;
   padding: 8px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .mobile-menu {
   display: none;
   flex-direction: column;
   padding: 0 24px 20px;
-  gap: 0;
   background: rgba(10, 10, 15, 0.98);
 }
 
@@ -163,20 +163,12 @@ body {
   font-weight: 500;
   padding: 14px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  transition: color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.mobile-menu a:last-child {
-  border-bottom: none;
-}
+.mobile-menu a:last-child { border-bottom: none; }
 
-.mobile-menu a:hover {
-  color: #ff4081;
-}
-
-.mobile-menu.open {
-  display: flex;
-}
+.mobile-menu.open { display: flex; }
 
 /* ========================================
    Hero Section
@@ -185,7 +177,8 @@ body {
   position: relative;
   width: 100%;
   height: 100vh;
-  min-height: 600px;
+  height: 100dvh; /* Dynamic viewport height — better on mobile */
+  min-height: 560px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -194,28 +187,20 @@ body {
 
 .hero-bg {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: url('assets/image.jpeg') no-repeat center center;
   background-size: cover;
   transform: scale(1.05);
   transition: transform 10s ease-out;
+  will-change: transform;
 }
 
-.hero-bg.loaded {
-  transform: scale(1);
-}
+.hero-bg.loaded { transform: scale(1); }
 
-/* Dark gradient overlay */
 #hero::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: linear-gradient(
     to bottom,
     rgba(10, 10, 15, 0.35) 0%,
@@ -271,7 +256,6 @@ body {
   flex-wrap: wrap;
 }
 
-/* Scroll indicator — positioned relative to #hero, not .hero-content */
 .scroll-indicator {
   position: absolute;
   bottom: 32px;
@@ -284,7 +268,6 @@ body {
   gap: 8px;
   color: rgba(255, 255, 255, 0.45);
   font-size: 0.8rem;
-  font-weight: 400;
   animation: heroFadeIn 0.8s ease-out 0.7s forwards;
   opacity: 0;
 }
@@ -299,7 +282,7 @@ body {
 }
 
 /* ========================================
-   CTA Buttons (Global)
+   CTA Buttons
    ======================================== */
 .cta-btn {
   display: inline-flex;
@@ -311,9 +294,11 @@ body {
   font-size: 1rem;
   font-weight: 600;
   text-decoration: none;
-  transition: all 0.25s ease;
   cursor: pointer;
   border: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .cta-primary {
@@ -322,23 +307,40 @@ body {
   box-shadow: 0 4px 20px rgba(255, 64, 129, 0.3);
 }
 
-.cta-primary:hover {
-  background: #e73370;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 28px rgba(255, 64, 129, 0.45);
-}
-
 .cta-secondary {
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: none;
 }
 
-.cta-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
+/* Hover only on devices that support it */
+@media (hover: hover) {
+  .nav-cta:hover {
+    background: #e73370 !important;
+    transform: scale(1.05);
+  }
+  .cta-primary:hover {
+    background: #e73370;
+    box-shadow: 0 6px 28px rgba(255, 64, 129, 0.45);
+  }
+  .cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  .nav-links a:hover { color: #fff; }
+  .mobile-menu a:hover { color: #ff4081; }
+  .gallery-item:hover img { transform: scale(1.06); }
+  .gallery-item:hover::after { background: rgba(0, 0, 0, 0.12); }
+  .detail-block:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 64, 129, 0.2);
+  }
+  .close:hover { color: #fff; }
+  .modal-nav:hover { background: rgba(255, 255, 255, 0.18); }
 }
+
+/* Active states for touch devices */
+.cta-primary:active { background: #e73370; }
+.cta-secondary:active { background: rgba(255, 255, 255, 0.15); }
 
 /* ========================================
    Highlights Strip
@@ -417,6 +419,7 @@ body {
   cursor: pointer;
   aspect-ratio: 4 / 3;
   background: #1a1a2e;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .gallery-featured {
@@ -430,32 +433,20 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.4s ease;
 }
 
-/* Hover overlay — pointer-events: none so clicks reach the img */
 .gallery-item::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0, 0, 0, 0);
   transition: background 0.3s ease;
   pointer-events: none;
 }
 
-.gallery-item:hover img {
-  transform: scale(1.06);
-}
-
-.gallery-item:hover::after {
-  background: rgba(0, 0, 0, 0.12);
-}
-
 /* ========================================
-   CTA Banners (between sections)
+   CTA Banners
    ======================================== */
 .cta-banner {
   padding: 64px 24px;
@@ -503,9 +494,7 @@ body {
   text-align: center;
 }
 
-.pricing-amount {
-  margin-bottom: 16px;
-}
+.pricing-amount { margin-bottom: 16px; }
 
 .pricing-label {
   display: block;
@@ -574,11 +563,6 @@ body {
   transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
-.detail-block:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255, 64, 129, 0.2);
-}
-
 .detail-icon {
   flex-shrink: 0;
   width: 48px;
@@ -631,9 +615,7 @@ body {
 /* ========================================
    Map Section
    ======================================== */
-#map {
-  padding-bottom: 80px;
-}
+#map { padding-bottom: 80px; }
 
 .map-container {
   max-width: 1000px;
@@ -748,8 +730,8 @@ footer {
   padding: 12px 20px;
   padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   background: rgba(10, 10, 15, 0.97);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -766,10 +748,7 @@ footer {
   display: none;
   position: fixed;
   z-index: 2000;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background-color: rgba(0, 0, 0, 0.92);
   align-items: center;
   justify-content: center;
@@ -780,11 +759,13 @@ footer {
   max-height: 85vh;
   border-radius: 12px;
   object-fit: contain;
-  animation: modalFadeIn 0.25s ease forwards;
+  animation: modalFadeIn 0.2s ease forwards;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 @keyframes modalFadeIn {
-  from { opacity: 0; transform: scale(0.96); }
+  from { opacity: 0; transform: scale(0.97); }
   to { opacity: 1; transform: scale(1); }
 }
 
@@ -796,16 +777,11 @@ footer {
   font-size: 36px;
   font-weight: 300;
   cursor: pointer;
-  transition: color 0.2s ease;
   z-index: 10;
   line-height: 1;
   background: none;
   border: none;
-  font-family: inherit;
-}
-
-.close:hover {
-  color: #fff;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .modal-nav {
@@ -823,12 +799,9 @@ footer {
   justify-content: center;
   cursor: pointer;
   font-size: 1rem;
-  transition: background 0.2s ease;
   z-index: 10;
-}
-
-.modal-nav:hover {
-  background: rgba(255, 255, 255, 0.18);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .modal-prev { left: 20px; }
@@ -842,6 +815,16 @@ footer {
   color: rgba(255, 255, 255, 0.4);
   font-size: 0.85rem;
   font-weight: 500;
+}
+
+/* ========================================
+   Below-fold rendering optimization
+   ======================================== */
+#details,
+#map,
+#contact {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;
 }
 
 /* ========================================
@@ -872,22 +855,15 @@ footer {
    Responsive: Mobile (640px)
    ======================================== */
 @media (max-width: 640px) {
-  .nav-links {
-    display: none;
-  }
-
-  .mobile-menu-btn {
-    display: block;
-  }
+  .nav-links { display: none; }
+  .mobile-menu-btn { display: block; }
 
   #hero h1 {
     font-size: 2.2rem;
     letter-spacing: -1px;
   }
 
-  .hero-sub {
-    font-size: 0.95rem;
-  }
+  .hero-sub { font-size: 0.95rem; }
 
   .hero-badge {
     font-size: 0.75rem;
@@ -904,17 +880,10 @@ footer {
     justify-content: center;
   }
 
-  .highlight-item {
-    font-size: 0.85rem;
-  }
+  .highlight-item { font-size: 0.85rem; }
 
-  .section-header {
-    padding: 60px 24px 28px;
-  }
-
-  .section-header h2 {
-    font-size: 1.7rem;
-  }
+  .section-header { padding: 60px 24px 28px; }
+  .section-header h2 { font-size: 1.7rem; }
 
   .gallery-grid {
     grid-template-columns: 1fr 1fr;
@@ -939,41 +908,19 @@ footer {
     margin-right: 16px;
   }
 
-  .pricing-number {
-    font-size: 2.4rem;
-  }
+  .pricing-number { font-size: 2.4rem; }
+  .pricing-includes { gap: 12px 20px; }
 
-  .pricing-includes {
-    gap: 12px 20px;
-  }
+  .cta-banner { padding: 48px 24px; }
+  .cta-banner h3 { font-size: 1.3rem; }
 
-  .cta-banner {
-    padding: 48px 24px;
-  }
+  .contact-header h2 { font-size: 1.7rem; }
+  .contact-badges { gap: 12px; }
 
-  .cta-banner h3 {
-    font-size: 1.3rem;
-  }
+  .map-container iframe { height: 280px; }
 
-  .contact-header h2 {
-    font-size: 1.7rem;
-  }
-
-  .contact-badges {
-    gap: 12px;
-  }
-
-  .map-container iframe {
-    height: 280px;
-  }
-
-  .mobile-sticky-cta {
-    display: block;
-  }
-
-  footer {
-    padding-bottom: 90px;
-  }
+  .mobile-sticky-cta { display: block; }
+  footer { padding-bottom: 90px; }
 
   .modal-nav {
     width: 40px;
@@ -983,21 +930,15 @@ footer {
 
   .modal-prev { left: 10px; }
   .modal-next { right: 10px; }
+  .scroll-indicator { bottom: 24px; }
 
-  .scroll-indicator {
-    bottom: 24px;
-  }
+  .form-container iframe { height: 700px; }
 }
 
 /* ========================================
    Responsive: Large Desktop (1024px+)
    ======================================== */
 @media (min-width: 1024px) {
-  #hero h1 {
-    font-size: 4rem;
-  }
-
-  .hero-sub {
-    font-size: 1.2rem;
-  }
+  #hero h1 { font-size: 4rem; }
+  .hero-sub { font-size: 1.2rem; }
 }

@@ -5,10 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>USC Student Housing Near Campus | Dwellora</title>
   <meta name="description" content="USC student housing for 2026-2027. Private rooms with bathrooms, 5-minute walk to Viterbi. Furnished, utilities included. Ideal for USC students.">
-  <!-- Google Fonts -->
+
+  <!-- Preconnect to CDNs for faster resource loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+  <!-- Preload hero image (LCP element) -->
+  <link rel="preload" as="image" href="assets/image.jpeg">
+
+  <!-- Google Fonts — display=swap already ensures text visible during load -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Font Awesome — load async so it doesn't block render -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -28,7 +40,6 @@
         <i class="fas fa-bars"></i>
       </button>
     </div>
-    <!-- Mobile menu -->
     <div class="mobile-menu">
       <a href="#gallery">Gallery</a>
       <a href="#details">Details</a>
@@ -89,22 +100,22 @@
     </div>
     <div class="gallery-grid">
       <div class="gallery-item gallery-featured reveal">
-        <img src="assets/image1.jpg" alt="Property exterior view">
+        <img src="assets/image1.jpg" alt="Property exterior view" loading="eager" decoding="async">
       </div>
       <div class="gallery-item reveal">
-        <img src="assets/image2.jpg" alt="Living space">
+        <img src="assets/image2.jpg" alt="Living space" loading="lazy" decoding="async">
       </div>
       <div class="gallery-item reveal">
-        <img src="assets/image3.jpg" alt="Bedroom">
+        <img src="assets/image3.jpg" alt="Bedroom" loading="lazy" decoding="async">
       </div>
       <div class="gallery-item reveal">
-        <img src="assets/image4.jpg" alt="Kitchen area">
+        <img src="assets/image4.jpg" alt="Kitchen area" loading="lazy" decoding="async">
       </div>
       <div class="gallery-item reveal">
-        <img src="assets/image5.jpg" alt="Bathroom">
+        <img src="assets/image5.jpg" alt="Bathroom" loading="lazy" decoding="async">
       </div>
       <div class="gallery-item reveal">
-        <img src="assets/image6.jpg" alt="Building amenities">
+        <img src="assets/image6.jpg" alt="Building amenities" loading="lazy" decoding="async">
       </div>
     </div>
   </section>
@@ -205,7 +216,7 @@
     </div>
   </section>
 
-  <!-- Google Maps Section -->
+  <!-- Google Maps Section — iframe deferred via JS -->
   <section id="map">
     <div class="section-header reveal">
       <h2>Our Location</h2>
@@ -213,17 +224,18 @@
     </div>
     <div class="map-container reveal">
       <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3307.0!2d-118.2935756!3d34.0193047!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c7fc0206d27b%3A0x42fe8d232c4972d7!2s1167%20W%2037th%20Dr%2C%20Los%20Angeles%2C%20CA%2090007!5e0!3m2!1sen!2sus!4v1740077359552!5m2!1sen!2sus"
+        data-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3307.0!2d-118.2935756!3d34.0193047!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c7fc0206d27b%3A0x42fe8d232c4972d7!2s1167%20W%2037th%20Dr%2C%20Los%20Angeles%2C%20CA%2090007!5e0!3m2!1sen!2sus!4v1740077359552!5m2!1sen!2sus"
         width="600"
         height="450"
         style="border:0;"
         allowfullscreen=""
-        loading="lazy">
+        loading="lazy"
+        title="Property location on Google Maps">
       </iframe>
     </div>
   </section>
 
-  <!-- Contact Form Section -->
+  <!-- Contact Form Section — iframe deferred via JS -->
   <section id="contact">
     <div class="contact-wrapper reveal">
       <div class="contact-header">
@@ -237,10 +249,12 @@
       </div>
       <div class="form-container">
         <iframe
-          src="https://docs.google.com/forms/d/e/1FAIpQLSesNUw2ufD3TIdvQtYs96aQ-_JANJFMmcRneCxfDd5FWVmM_Q/viewform?embedded=true"
+          data-src="https://docs.google.com/forms/d/e/1FAIpQLSesNUw2ufD3TIdvQtYs96aQ-_JANJFMmcRneCxfDd5FWVmM_Q/viewform?embedded=true"
           frameborder="0"
           marginheight="0"
-          marginwidth="0">
+          marginwidth="0"
+          loading="lazy"
+          title="Contact form">
         Loading...
         </iframe>
       </div>
@@ -261,15 +275,15 @@
   </div>
 
   <!-- Image Modal -->
-  <div id="image-modal" class="modal">
-    <span class="close">&times;</span>
+  <div id="image-modal" class="modal" role="dialog" aria-modal="true">
+    <span class="close" role="button" aria-label="Close">&times;</span>
     <button class="modal-nav modal-prev" aria-label="Previous image"><i class="fas fa-chevron-left"></i></button>
     <img class="modal-content" id="modal-img" alt="Property image enlarged">
     <button class="modal-nav modal-next" aria-label="Next image"><i class="fas fa-chevron-right"></i></button>
     <div class="modal-counter" id="modal-counter"></div>
   </div>
 
-  <!-- Custom JavaScript -->
+  <!-- Custom JavaScript — defer doesn't help since it's at bottom, but keep it lean -->
   <script src="script.js"></script>
 </body>
 </html>
