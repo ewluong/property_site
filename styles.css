@@ -820,8 +820,7 @@ footer {
 /* ========================================
    Below-fold rendering optimization
    ======================================== */
-#details,
-#map {
+#details {
   content-visibility: auto;
   contain-intrinsic-size: auto 800px;
 }

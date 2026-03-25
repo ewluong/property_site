@@ -24,27 +24,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ========================================
-  // Lazy-load iframes (Maps + Google Form)
-  // Only load when user scrolls near them
-  // ========================================
-  var lazyIframes = document.querySelectorAll('iframe[data-src]');
-
-  var iframeObs = new IntersectionObserver(function (entries) {
-    for (var e = 0; e < entries.length; e++) {
-      if (entries[e].isIntersecting) {
-        var iframe = entries[e].target;
-        iframe.src = iframe.getAttribute('data-src');
-        iframe.removeAttribute('data-src');
-        iframeObs.unobserve(iframe);
-      }
-    }
-  }, { rootMargin: '200px' }); // Start loading 200px before visible
-
-  for (i = 0; i < lazyIframes.length; i++) {
-    iframeObs.observe(lazyIframes[i]);
-  }
-
-  // ========================================
   // Sticky Navbar
   // ========================================
   var navbar = document.getElementById('navbar');
