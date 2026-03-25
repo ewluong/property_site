@@ -481,6 +481,17 @@ body {
   line-height: 1.6;
 }
 
+.cta-banner-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cta-btn i {
+  margin-right: 8px;
+}
+
 /* ========================================
    Pricing Callout
    ======================================== */
@@ -665,6 +676,18 @@ body {
   line-height: 1.6;
 }
 
+.contact-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.contact-actions .cta-btn i {
+  margin-right: 8px;
+}
+
 .contact-badges {
   display: flex;
   justify-content: center;
@@ -735,10 +758,24 @@ footer {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.mobile-sticky-cta {
+  display: none;
+  gap: 8px;
+}
+
 .mobile-sticky-cta .cta-btn {
-  width: 100%;
-  padding: 16px;
-  font-size: 1rem;
+  padding: 14px;
+  font-size: 0.95rem;
+}
+
+.mobile-sticky-cta .cta-primary {
+  flex: 1;
+}
+
+.mobile-sticky-call {
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* ========================================
@@ -917,7 +954,7 @@ footer {
 
   .map-container iframe { height: 280px; }
 
-  .mobile-sticky-cta { display: block; }
+  .mobile-sticky-cta { display: flex; }
   footer { padding-bottom: 90px; }
 
   .modal-nav {
