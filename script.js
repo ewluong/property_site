@@ -1,31 +1,40 @@
 document.addEventListener("DOMContentLoaded", function () {
 
   // ========================================
-  // Scroll Animations (IntersectionObserver)
+  // Scroll Reveal Animations
+  // Mark elements as ready for animation, then observe.
+  // Without JS, elements remain fully visible (no .reveal-ready class).
   // ========================================
-  const animatedElements = document.querySelectorAll('.animate-on-scroll');
+  var revealElements = document.querySelectorAll('.reveal');
 
-  const scrollObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
+  // Mark all elements as animation-ready (sets opacity: 0 via CSS)
+  revealElements.forEach(function (el) {
+    el.classList.add('reveal-ready');
+  });
+
+  var revealObserver = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
-          scrollObserver.unobserve(entry.target);
+          revealObserver.unobserve(entry.target);
         }
       });
     },
-    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    { threshold: 0.08, rootMargin: '0px 0px -30px 0px' }
   );
 
-  animatedElements.forEach((el) => scrollObserver.observe(el));
+  revealElements.forEach(function (el) {
+    revealObserver.observe(el);
+  });
 
   // ========================================
-  // Sticky Navbar
+  // Sticky Navbar (transparent -> solid on scroll)
   // ========================================
-  const navbar = document.getElementById('navbar');
+  var navbar = document.getElementById('navbar');
 
   function updateNavbar() {
-    if (window.scrollY > 80) {
+    if (window.scrollY > 60) {
       navbar.classList.add('scrolled');
     } else {
       navbar.classList.remove('scrolled');
@@ -38,68 +47,72 @@ document.addEventListener("DOMContentLoaded", function () {
   // ========================================
   // Mobile Menu Toggle
   // ========================================
-  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-  const mobileMenu = document.querySelector('.mobile-menu');
+  var mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  var mobileMenu = document.querySelector('.mobile-menu');
 
   if (mobileMenuBtn && mobileMenu) {
     mobileMenuBtn.addEventListener('click', function () {
-      mobileMenu.classList.toggle('open');
-      const icon = mobileMenuBtn.querySelector('i');
-      if (mobileMenu.classList.contains('open')) {
-        icon.classList.remove('fa-bars');
-        icon.classList.add('fa-times');
+      var isOpen = mobileMenu.classList.toggle('open');
+      var icon = mobileMenuBtn.querySelector('i');
+      if (isOpen) {
+        icon.className = 'fas fa-times';
+        // Ensure navbar has background when menu is open
+        navbar.classList.add('scrolled');
       } else {
-        icon.classList.remove('fa-times');
-        icon.classList.add('fa-bars');
+        icon.className = 'fas fa-bars';
+        updateNavbar();
       }
     });
 
-    // Close mobile menu when a link is clicked
-    mobileMenu.querySelectorAll('a').forEach(function (link) {
-      link.addEventListener('click', function () {
+    // Close menu when a link is clicked
+    var menuLinks = mobileMenu.querySelectorAll('a');
+    for (var i = 0; i < menuLinks.length; i++) {
+      menuLinks[i].addEventListener('click', function () {
         mobileMenu.classList.remove('open');
-        const icon = mobileMenuBtn.querySelector('i');
-        icon.classList.remove('fa-times');
-        icon.classList.add('fa-bars');
+        mobileMenuBtn.querySelector('i').className = 'fas fa-bars';
+        updateNavbar();
       });
-    });
+    }
   }
 
   // ========================================
-  // Hero Background Zoom on Load
+  // Hero Background Slow Zoom on Load
   // ========================================
-  const heroBg = document.querySelector('.hero-bg');
+  var heroBg = document.querySelector('.hero-bg');
   if (heroBg) {
+    // Small delay so the transition is visible
     setTimeout(function () {
-      heroBg.style.transform = 'scale(1)';
+      heroBg.classList.add('loaded');
     }, 100);
   }
 
   // ========================================
-  // Image Modal Gallery with Navigation
+  // Image Modal with Navigation
   // ========================================
-  const modal = document.getElementById('image-modal');
-  const modalImg = document.getElementById('modal-img');
-  const modalCounter = document.getElementById('modal-counter');
-  const closeBtn = document.querySelector('.modal .close');
-  const prevBtn = document.querySelector('.modal-prev');
-  const nextBtn = document.querySelector('.modal-next');
-  const galleryImages = document.querySelectorAll('.gallery-item img');
+  var modal = document.getElementById('image-modal');
+  var modalImg = document.getElementById('modal-img');
+  var modalCounter = document.getElementById('modal-counter');
+  var closeBtn = document.querySelector('.modal .close');
+  var prevBtn = document.querySelector('.modal-prev');
+  var nextBtn = document.querySelector('.modal-next');
+  var galleryImages = document.querySelectorAll('.gallery-item img');
 
   var currentIndex = 0;
   var imageSources = [];
 
-  // Collect all image sources
-  galleryImages.forEach(function (img) {
-    imageSources.push(img.src);
-  });
+  // Collect image sources
+  for (var j = 0; j < galleryImages.length; j++) {
+    imageSources.push(galleryImages[j].src);
+  }
 
   function showImage(index) {
     if (index < 0) index = imageSources.length - 1;
     if (index >= imageSources.length) index = 0;
     currentIndex = index;
     modalImg.src = imageSources[currentIndex];
-    modalCounter.textContent = (currentIndex + 1) + ' / ' + imageSources.length;
+    if (modalCounter) {
+      modalCounter.textContent = (currentIndex + 1) + ' / ' + imageSources.length;
+    }
   }
 
   function openModal(index) {
@@ -113,19 +126,32 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.style.overflow = '';
   }
 
-  // Open modal on image click
-  galleryImages.forEach(function (img, i) {
-    img.addEventListener('click', function () {
-      openModal(i);
-    });
-  });
-
-  // Close button
-  if (closeBtn) {
-    closeBtn.addEventListener('click', closeModal);
+  // Click handlers on gallery images
+  for (var k = 0; k < galleryImages.length; k++) {
+    (function (idx) {
+      galleryImages[idx].addEventListener('click', function () {
+        openModal(idx);
+      });
+    })(k);
   }
 
-  // Navigation buttons
+  // Also allow clicking the gallery-item div itself (not just the img)
+  var galleryItems = document.querySelectorAll('.gallery-item');
+  for (var g = 0; g < galleryItems.length; g++) {
+    (function (idx) {
+      galleryItems[idx].addEventListener('click', function () {
+        openModal(idx);
+      });
+    })(g);
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      closeModal();
+    });
+  }
+
   if (prevBtn) {
     prevBtn.addEventListener('click', function (e) {
       e.stopPropagation();
@@ -141,16 +167,17 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Close on backdrop click
-  modal.addEventListener('click', function (e) {
-    if (e.target === modal) {
-      closeModal();
-    }
-  });
+  if (modal) {
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
 
   // Keyboard navigation
   document.addEventListener('keydown', function (e) {
     if (modal.style.display !== 'flex') return;
-
     if (e.key === 'Escape') {
       closeModal();
     } else if (e.key === 'ArrowLeft') {
@@ -161,18 +188,19 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ========================================
-  // Smooth Scroll for CTA links (fallback)
+  // Smooth Scroll for all anchor links
   // ========================================
-  document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
-    anchor.addEventListener('click', function (e) {
-      var targetId = this.getAttribute('href');
-      if (targetId === '#') return;
-      var target = document.querySelector(targetId);
+  var anchors = document.querySelectorAll('a[href^="#"]');
+  for (var a = 0; a < anchors.length; a++) {
+    anchors[a].addEventListener('click', function (e) {
+      var href = this.getAttribute('href');
+      if (!href || href === '#') return;
+      var target = document.querySelector(href);
       if (target) {
         e.preventDefault();
         target.scrollIntoView({ behavior: 'smooth' });
       }
     });
-  });
+  }
 
 });
